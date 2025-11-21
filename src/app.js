@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
@@ -31,5 +32,5 @@ connectDB()
     })
  })
  .catch(()=>{
-     res.status(400).send("Error : "+ err.message);
+     console.log("Server not started");
  });
