@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     firstName:{
         type:String,
         required:true,
-        minLength:4,
+        minLength:3,
         maxLength:50,
     },
     lastName:{
@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     gender:{
         type:String,
         enum:{
-            values : ["male","female","others"],
+            values : ["others","Male","Female",],
             message : `{Value} is not valid gender type`
         }
     },

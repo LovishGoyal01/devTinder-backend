@@ -8,7 +8,7 @@ const userAuth = async (req,res,next) =>{
     return res.status(401).send("Please Login");
    }
 
-   const decodedObg = await jwt.verify(token,"DEV@Tinder$1505");
+   const decodedObg = await jwt.verify(token,process.env.JWT_SECRET);
    
    const {_id} = decodedObg;
 

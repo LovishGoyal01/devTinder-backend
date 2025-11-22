@@ -27,7 +27,7 @@ app.use("/",userRouter);
 connectDB()
  .then(()=>{
     console.log("Connected to DB successfully");
-    app.listen(1505,()=>{
+    app.listen(process.env.PORT,()=>{
     console.log("Server created successfully");
     })
  })
