@@ -12,7 +12,7 @@ const initializeSocket = (server) => {
   cors: {
     origin: [
       "http://localhost:5173",
-      "https://your-frontend.vercel.app"
+      "https://devtinder-web-three.vercel.app/"
     ],
     methods: ["GET", "POST"],
     credentials: true
