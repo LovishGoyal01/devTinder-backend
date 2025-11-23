@@ -10,7 +10,7 @@ const initializeSocket = require("./utils/socket");
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://devtinder-web-three.vercel.app/"
+    "https://devtinder-web-three.vercel.app"
   ],
   credentials: true,
 }));
