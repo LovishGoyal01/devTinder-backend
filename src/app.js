@@ -7,12 +7,14 @@ const cors = require("cors");
 const http = require("http");
 const initializeSocket = require("./utils/socket");
 
-app.use(
-  cors({
-    origin: "*",
-    credentials : true,
-  })
-);
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://your-frontend.vercel.app"
+  ],
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
