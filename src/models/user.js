@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema({
         }
       },
       enum: {
-          values: ["Nodejs", "React", "Java", "Python", "C++", "C", "Javascript", "Others"],
+          values: ["Beginner","Nodejs", "React", "Java", "Python", "C++", "C", "Javascript", "Others"],
           message: "{VALUE} is not a valid skill"
       }
     }
