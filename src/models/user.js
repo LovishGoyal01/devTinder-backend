@@ -58,6 +58,9 @@ const userSchema = new mongoose.Schema({
         if(value.length > 125){
             throw new Error("Short the about")
         }
+        if(value.length < 50){
+            throw new Error("Tell more about You in about section")
+        }
        }
     },
     skills: {
