@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         enum:{
             values : ["others","Male","Female",],
-            message : `{Value} is not valid gender type`
+            message : `{VALUE} is not valid gender type`
         }
     },
     photoURL:{
@@ -60,14 +60,17 @@ const userSchema = new mongoose.Schema({
         }
        }
     },
-    skills:{
-        type: [String],
-        validate(value){
-            if(value.length>5)
-                 {
-                    throw new Error("Skills can't be more than 5")
-                 }
+    skills: {
+      type: [String],
+      validate(value) {  
+        if (value.length > 5) {
+        throw new Error("Skills can't be more than 5");
         }
+      },
+      enum: {
+          values: ["Nodejs", "React", "Java", "Python", "C++", "C", "Javascript", "Others"],
+          message: "{VALUE} is not a valid skill"
+      }
     }
 },
 {
