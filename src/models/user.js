@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema({
     },
     about:{
        type:String,
-       default:"This is default about of user",
+       default:"This is your default about section. Share a bit about yourself so people can connect with you!",
        validate(value){
         if(value.length > 125){
             throw new Error("Short the about")
