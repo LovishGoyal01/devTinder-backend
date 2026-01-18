@@ -34,10 +34,12 @@ app.use("/",chatRouter);
 const server = http.createServer(app);
 initializeSocket(server);
 
+
+
 connectDB()
  .then(()=>{
     console.log("Connected to DB successfully");
-    const PORT = process.env.PORT;
+    const PORT = process.env.PORT || 1505;
     server.listen(PORT, "0.0.0.0",()=>{
     console.log(`Server is successfully listening on port: ${PORT} `);
     })
