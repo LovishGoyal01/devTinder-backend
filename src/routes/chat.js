@@ -9,32 +9,31 @@ chatRouter.get("/chat/:targetUserId",userAuth, async (req,res)=>{
   const userId = req.user._id;
 
   try{
+     const areFriends = await ConnectionRequest.findOne({
+       $or:[{fromUserId:userId , toUserId:targetUserId ,status:"accepted"},
+           {fromUserId:targetUserId , toUserId:userId ,status:"accepted"}
+       ]
+     });
+     if(!areFriends){
+        return res.json({success:false, message: "You are not friends" });
+     }
 
-    const areFriends = await ConnectionRequest.findOne({
-      $or:[{fromUserId:userId , toUserId:targetUserId ,status:"accepted"},
-          {fromUserId:targetUserId , toUserId:userId ,status:"accepted"}
-        ]
-      });
-      if(!areFriends){
-        return res.status(403).json({ message: "You are not friends" });
-      }
-
-    let chat =await Chat.findOne({
+     let chat =await Chat.findOne({
         participants:{$all : [userId,targetUserId]},
-    }).populate({
+     }).populate({
         path:"messages.senderId",
         select:"firstName lastName"
-    });
-    if(!chat){
+     });
+     if(!chat){
        chat = new Chat({
            participants:[userId,targetUserId],
            messages: [],
        });
       await chat.save();
-    }
-    res.json(chat);
-   }catch(err){
-     res.send("ERROR : "+err.message);
+     }
+     res.json({success:true,  message:"Chat fetched successfully", chat});
+   }catch(error){
+     res.json({success:false, message:error.message});
    }
 })
 

@@ -7,44 +7,45 @@ const userRouter = express.Router();
 
 const USER_SAFE_DATA = "firstName lastName photoURL age gender about skills";
 
-userRouter.get("/user/requests/received" , userAuth , async (req,res)=>{
+userRouter.get("/requests/received", userAuth, async (req,res)=>{
     try{
-     const loggedInUser = req.user;
+      const loggedInUser = req.user;
       
-     const connectionRequest = await ConnectionRequest.find({
+      const connectionRequest = await ConnectionRequest.find({
         toUserId : loggedInUser._id,
         status : "interested",
-     }).populate("fromUserId" , USER_SAFE_DATA );
+      }).populate("fromUserId" , USER_SAFE_DATA );
 
-     res.send(connectionRequest);
-    } catch(err){
-        res.status(400).send("ERROR : "+err.message);
+      res.json({success:true, message:"Connection Requests fetched successfully !!!",  connectionRequest:connectionRequest});
+    }catch(error){
+      res.status(400).json({success:false, message: error.message});
     }
 });
 
-userRouter.get("/user/connections" , userAuth , async (req,res)=>{
+userRouter.get("/connections", userAuth, async (req,res)=>{
     try{
-     const loggedInUser = req.user;
+      const loggedInUser = req.user;
       
-     const connectionRequest = await ConnectionRequest.find({
-      $or:[
-        {toUserId :loggedInUser._id , status : "accepted"},
-        {fromUserId:loggedInUser._id , status : "accepted"},
-      ]
-    })
-      .populate("fromUserId" ,USER_SAFE_DATA)
-      .populate("toUserId" ,USER_SAFE_DATA);
+      const connectionRequest = await ConnectionRequest.find({
+       $or:[
+          {toUserId :loggedInUser._id , status : "accepted"},
+          {fromUserId:loggedInUser._id , status : "accepted"},
+       ]
+      })
+       .populate("fromUserId" ,USER_SAFE_DATA)
+       .populate("toUserId" ,USER_SAFE_DATA);
 
-    const data = connectionRequest.map((row)=> {
+      const connections = connectionRequest.map((row)=> {
         if(row.fromUserId._id.toString() === loggedInUser._id.toString()){
             return row.toUserId;
         }
         return row.fromUserId;
-     }) 
-        res.json({data});
+      }) 
+
+      res.json({success:true, message:"Connections fetched successfully !!!" , connections:connections});
     
-    } catch(err){
-        res.status(400).send("ERROR : "+err.message);
+    }catch(error){
+      res.status(400).json({success:false, message: error.message});
     }
 });
 
@@ -63,7 +64,7 @@ userRouter.get("/feed" , userAuth , async (req,res)=>{
       
       const connectionRequest = await ConnectionRequest.find({
        $or: [{toUserId:loggedInUser._id},{fromUserId:loggedInUser._id}]
-      }).populate("fromUserId toUserId");
+      })
 
       const hideUserFromFeed = new Set();
 
@@ -77,12 +78,16 @@ userRouter.get("/feed" , userAuth , async (req,res)=>{
         { _id : {$nin : Array.from(hideUserFromFeed)}},
         { _id : {$ne : loggedInUser._id.toString()}}
        ]
-      }).select(USER_SAFE_DATA).skip(skip).limit(limit);
-      
-      res.send(users);
+      }).select(USER_SAFE_DATA).skip(skip).limit(limit+1);
 
-    }catch(err){
-        res.status(400).send("ERROR : "+err.message);
+      
+      const hasMore = users.length > limit;
+      if (hasMore) users.pop(); // remove extra record
+
+      return res.json({success: true, feed: users, hasMore });
+
+    }catch(error){
+      res.status(400).json({success:false, message: error.message});
     }
 
 });

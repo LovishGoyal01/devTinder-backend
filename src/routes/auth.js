@@ -4,15 +4,19 @@ const authRouter = express.Router();
 const {validSignUpdata} = require("../utils/validation");
 const User = require("../models/user");
 const bycrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
-const USER_SAFE_DATA = "firstName lastName photoURL age gender about skills";
+const USER_SAFE_DATA = ["firstName", "lastName", "photoURL", "age", "gender", "about", "skills"];
 
 authRouter.post("/signup" , async (req,res) => {
  
     try{
       validSignUpdata(req);
-      const {firstName,lastName,emailId,password,age,gender} = req.body;
+      const {firstName,lastName,emailId,password} = req.body;
+
+      const isEmailAlreadyUsed = await User.findOne({emailId: emailId});
+      if(isEmailAlreadyUsed){
+         throw new Error("User already exists")
+      }
 
       const passwordHash = await bycrypt.hash(password,10);
 
@@ -21,11 +25,13 @@ authRouter.post("/signup" , async (req,res) => {
          lastName,
          emailId,
          password:passwordHash,
-         age,
-         gender,
       });
 
      const savedUser = await user.save();
+
+     const userSafeData = Object.fromEntries( 
+        Object.entries(savedUser.toObject()).filter(([key]) => USER_SAFE_DATA.includes(key))
+     );
      
      const token = await savedUser.getJWT();
       res.cookie("token",token,{
@@ -36,11 +42,11 @@ authRouter.post("/signup" , async (req,res) => {
          expires:new Date(Date.now() + 8*3600000)
       });
 
-      res.json({message:"User Added Successfully!!" ,data:savedUser});
+      res.json({success:true, message:"User Added Successfully!!", user:userSafeData});
     
-    }catch(err){
-       res.status(400).send("Error : "+ err.message);
-     }
+    }catch(error){
+       res.status(400).json({success:false, message: error.message});
+    }
 });
 
 authRouter.post("/login" , async (req,res) => {
@@ -57,6 +63,10 @@ authRouter.post("/login" , async (req,res) => {
        if(!isPasswordValid){
           throw new Error("Invalid Credentials");
        }
+
+       const userSafeData = Object.fromEntries(
+         Object.entries(user.toObject()).filter(([key]) => USER_SAFE_DATA.includes(key))
+       )
   
       const token = await user.getJWT();
       res.cookie("token",token,{
@@ -67,18 +77,23 @@ authRouter.post("/login" , async (req,res) => {
          expires:new Date(Date.now() + 8*3600000)
       });
 
-      res.send(user);
+      res.json({success:true, message:"User logged in Successfully!!", user:userSafeData});
 
-    }catch(err){
-       res.status(400).send("Error : "+ err.message);
-     }
+    }catch(error){
+      res.status(400).json({success:false, message: error.message});
+    }
 });
 
 authRouter.post("/logout" , async (req,res) => {
-    res.cookie("token" , null , { 
+   try{
+     res.cookie("token" , null , { 
        expires : new Date(Date.now()),
-    });
-    res.send("User logged Out");
+     });
+     res.json({success:true, message:"Logout Successfull !!!"});
+   }catch(error){
+     res.status(400).json({success:false, message: error.message});
+   }
+    
 });
 
 module.exports = authRouter;

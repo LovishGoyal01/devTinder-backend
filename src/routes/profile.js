@@ -1,51 +1,51 @@
 const express = require("express");
 const profileRouter = express.Router();
+
 const {userAuth} = require("../middlewares/auth");
 const { validateEditProfileData } = require("../utils/validation");
 const bycrypt = require("bcrypt");
 const validator = require("validator");
 
-profileRouter.get("/profile/view",userAuth,async (req,res)=>{
+const USER_SAFE_DATA = ["firstName", "lastName", "photoURL", "age", "gender", "about", "skills"];
+
+profileRouter.get("/view", userAuth, async (req,res)=>{
    try{
       const user = req.user;
-      res.send(user);
-    }
-    catch(err)
-     {
-       res.status(400).send("Error : "+ err.message); 
-     }
 
+      res.json({success:true, message:"Profile fetched successfully", user});
+   }catch(error){
+      res.status(400).json({success:false, message: error.message}); 
+   }
 });
 
-profileRouter.patch("/profile/edit",userAuth,async (req,res)=>{
+profileRouter.patch("/edit", userAuth, async (req,res)=>{
  
    try{
-       if(!validateEditProfileData(req)){
-        throw new Error("Invalid Edit request")
-       }
+       validateEditProfileData(req)
 
        const loggedInUser = req.user;
 
-
-       Object.keys(req.body).forEach((key) => loggedInUser[key] = req.body[key]);
+       USER_SAFE_DATA.forEach((key) => {
+         if (req.body[key] !== undefined) {
+            loggedInUser[key] = req.body[key];
+         }
+       });
        
-       await loggedInUser.save();
+       await loggedInUser.save({ runValidators: true });
    
-       res.json({message : `${loggedInUser.firstName} your profile was updated successfully` , data : loggedInUser,});
-     }
-    catch(err)
-     {
-       res.status(400).send("Error : "+ err.message); 
+       res.json({success:true ,message : `${loggedInUser.firstName} your profile was updated successfully`, user: loggedInUser});
+     }catch(error){
+       res.status(400).json({success:false, message: error.message});
      }
 });  
 
-profileRouter.patch("/profile/editpassword",userAuth, async (req,res) =>{
+profileRouter.patch("/editpassword", userAuth, async (req,res) =>{
  
    try{
       if(!validator.isStrongPassword(req.body.password)){
          throw new Error("Create a Strong Password");
       }
-      newPassword = req.body.password;
+      const newPassword = req.body.password;
 
       const passwordHash = await bycrypt.hash(newPassword,10);
 
@@ -54,11 +54,11 @@ profileRouter.patch("/profile/editpassword",userAuth, async (req,res) =>{
       user.password = passwordHash;
 
       await user.save();
-      res.send("Your password updated successfully");
+      res.json({success:true ,message: "Your password updated successfully"});
 
-    }catch(err){
-      res.status(400).send("Error : "+ err.message); 
-     }
+   }catch(error){
+      res.status(400).json({success:false, message: error.message});
+   }
 });
 
 

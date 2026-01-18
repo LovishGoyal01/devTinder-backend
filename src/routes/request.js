@@ -5,7 +5,7 @@ const {userAuth} = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-requestRouter.post("/request/send/:status/:toUserId", userAuth , async (req,res)=>{
+requestRouter.post("/send/:status/:toUserId", userAuth , async (req,res)=>{
 
     try{
         const fromUserId = req.user._id;
@@ -23,7 +23,6 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth , async (req,res)
             throw new Error("User not Found!!!!")
         }
 
-
         const existingConnectionRequest = await ConnectionRequest.findOne({
             $or : [
                 { fromUserId:fromUserId , toUserId:toUserId},
@@ -38,17 +37,14 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth , async (req,res)
         
         const data = await connectionRequest.save();
 
-        res.json({ 
-            message: `Connection Request Sent successfully`,
-            data,
-        })
+        res.json({success:true, message:`Connection Request ${status}`});
 
-    }catch(err){
-        res.status(400).send("Error : "+ err.message); 
+    }catch(error){
+        res.status(400).json({success:false, message: error.message}); 
     }
 });
 
-requestRouter.post("/request/review/:status/:requestId", userAuth , async (req,res)=>{
+requestRouter.post("/review/:status/:requestId", userAuth , async (req,res)=>{
 
     try{
         const requestId = req.params.requestId;
@@ -72,12 +68,11 @@ requestRouter.post("/request/review/:status/:requestId", userAuth , async (req,r
 
         connectionRequest.status = status;
         const data = await connectionRequest.save();
-        res.json({message:"Connection Request "+status});
+        res.json({success:true, message:`Connection Request ${status}`});
 
-    }catch(err){
-        res.status(400).send("Error : "+ err.message); 
+    }catch(error){
+        res.status(400).json({success:false, message: error.message}); 
     }
 });
-
 
 module.exports = requestRouter;

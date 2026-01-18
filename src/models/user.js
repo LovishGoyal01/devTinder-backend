@@ -1,18 +1,20 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
-const bycrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 
 
 const userSchema = new mongoose.Schema({
     firstName:{
         type:String,
         required:true,
-        minLength:3,
+        minLength:3, 
         maxLength:50,
+        trim:true,
     },
     lastName:{
-        type:String,    
+        type:String, 
+        trim:true,   
     },
     emailId:{
         type:String,
@@ -20,7 +22,7 @@ const userSchema = new mongoose.Schema({
         unique:true,
         lowercase:true,
         trim:true,
-        validate(value){
+        validate(value){     
            if(!validator.isEmail(value)){
             throw new Error("Not valid email");
            }
@@ -28,19 +30,21 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,  
+        required:true,
+        minLength: 6, 
+        trim:true, 
     },
     age:{
         type:Number,
-        min:18,
-        max:70,
+        min:18,  
+        max:100,
     },
     gender:{
         type:String,
         enum:{
-            values : ["others","Male","Female",],
+            values : ["Other","Male","Female"],
             message : `{VALUE} is not valid gender type`
-        }
+        },
     },
     photoURL:{
         type:String,
@@ -53,44 +57,43 @@ const userSchema = new mongoose.Schema({
     },
     about:{
        type:String,
-       default:"This is your default about section. Share a bit about yourself so people can connect with you!",
-       validate(value){
-        if(value.length > 125){
-            throw new Error("Short the about")
-        }
-        if(value.length < 50){
-            throw new Error("Tell more about You in about section")
-        }
-       }
+       trim:true,
+       minlength: 100,
+       maxlength: 150,
+       default: "This is your default about section. Share a bit about yourself so people can connect with you and understand your interests, background, and personality."
     },
     skills: {
       type: [String],
+      default : ["Default"],
       validate(value) {  
-        if (value.length > 5) {
-        throw new Error("Skills can't be more than 5");
+        if (value.length > 10) {
+          throw new Error("Skills can't be more than 10");
         }
-      },
-      enum: {
-          values: ["Beginner","Nodejs", "React", "Java", "Python", "C++", "C", "Javascript", "Others"],
-          message: "{VALUE} is not a valid skill"
-      }
-    }
+      
+        const cleaned = value.map((s) => s.trim()).filter(Boolean);
+        const unique = new Set(cleaned);
+
+        if (cleaned.length !== unique.size) {
+          throw new Error("Duplicate skills are not allowed");
+        }
+     },
+   },
 },
 {
   timestamps:true
 })
 
-userSchema.methods.getJWT = async function () {
-    const user = this;
+userSchema.methods.getJWT = function () {
 
-    const token = await jwt.sign({_id:user._id},"DEV@Tinder$1505",{expiresIn:"7d"});
+    const user = this;
+    const token = jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"7d"});
     return token;
 }
 
 userSchema.methods.validatePassword = async function (passwordInputByUser) {
     const user = this;
     const hashpassword = user.password;
-    const isPasswordValid = await bycrypt.compare(passwordInputByUser , hashpassword);  
+    const isPasswordValid = await bcrypt.compare(passwordInputByUser , hashpassword);  
     return isPasswordValid;
 }
 

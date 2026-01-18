@@ -1,28 +1,32 @@
-const jwt =require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user")
+
+const USER_SAFE_DATA = ["firstName", "lastName", "photoURL", "age", "gender", "about", "skills"];
 
 const userAuth = async (req,res,next) =>{
  try{
-   const {token} = req.cookies;
-   if(!token){
-    return res.status(401).send("Please Login");
-   }
 
-   const decodedObg = await jwt.verify(token,process.env.JWT_SECRET);
-   
-   const {_id} = decodedObg;
+    const {token} = req.cookies;
+    if(!token){
+      return res.status(401).json({success: false, message: "Please Login"});
+    }
 
-   const user = await User.findById(_id);
+    const decodedObj = jwt.verify(token,process.env.JWT_SECRET);
+    const {_id} = decodedObj;
 
-   if(!user){
-    throw new Error("User not found!!!");
-   }
+    const user = await User.findById(_id).select(USER_SAFE_DATA);
+    if(!user){
+      throw new Error("User not found!!!");
+    }
+
     req.user = user;
     next();
-  }catch(err){
-   res.status(400).send("ERROR : "+err.message)
+
+  }catch(error){
+    res.status(400).json({success:false, message: error.message});
   }
 }
+
 module.exports = {
     userAuth,
 }
