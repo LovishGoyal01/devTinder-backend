@@ -45,7 +45,7 @@ authRouter.post("/signup" , async (req,res) => {
       res.json({success:true, message:"User Added Successfully!!", user:userSafeData});
     
     }catch(error){
-       res.status(400).json({success:false, message: error.message});
+       res.json({success:false, message: error.message});
     }
 });
 
@@ -80,7 +80,7 @@ authRouter.post("/login" , async (req,res) => {
       res.json({success:true, message:"User logged in Successfully!!", user:userSafeData});
 
     }catch(error){
-      res.status(400).json({success:false, message: error.message});
+      res.json({success:false, message: error.message});
     }
 });
 
@@ -91,7 +91,7 @@ authRouter.post("/logout" , async (req,res) => {
      });
      res.json({success:true, message:"Logout Successfull !!!"});
    }catch(error){
-     res.status(400).json({success:false, message: error.message});
+     res.json({success:false, message: error.message});
    }
     
 });

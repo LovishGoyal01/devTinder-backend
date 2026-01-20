@@ -48,19 +48,19 @@ const userSchema = new mongoose.Schema({
     },
     photoURL:{
         type:String,
-        default:"https://static.vecteezy.com/system/resources/previews/036/594/092/original/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg",
+        default: "https://drive.google.com/uc?export=view&id=1r7UB3pGb9DvivL42iHWKPtUfhVQfizS5",
         validate(value){
            if(!validator.isURL(value)){
             throw new Error("Not valid photoURL");
            }
         }   
     },
-    about:{
-       type:String,
-       trim:true,
-       minlength: 100,
-       maxlength: 150,
-       default: "This is your default about section. Share a bit about yourself so people can connect with you and understand your interests, background, and personality."
+    about: {
+      type: String,
+      trim: true,
+      minlength: [100, "About must be at least 100 characters"],
+      maxlength: [150, "About must be at most 150 characters"],
+      default: "This is your default about section where you can describe yourself, your interests, background, and personality so others can understand you better."
     },
     skills: {
       type: [String],

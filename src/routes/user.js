@@ -18,7 +18,7 @@ userRouter.get("/requests/received", userAuth, async (req,res)=>{
 
       res.json({success:true, message:"Connection Requests fetched successfully !!!",  connectionRequest:connectionRequest});
     }catch(error){
-      res.status(400).json({success:false, message: error.message});
+      res.json({success:false, message: error.message});
     }
 });
 
@@ -45,7 +45,7 @@ userRouter.get("/connections", userAuth, async (req,res)=>{
       res.json({success:true, message:"Connections fetched successfully !!!" , connections:connections});
     
     }catch(error){
-      res.status(400).json({success:false, message: error.message});
+      res.json({success:false, message: error.message});
     }
 });
 
@@ -87,7 +87,7 @@ userRouter.get("/feed" , userAuth , async (req,res)=>{
       return res.json({success: true, feed: users, hasMore });
 
     }catch(error){
-      res.status(400).json({success:false, message: error.message});
+      res.json({success:false, message: error.message});
     }
 
 });

@@ -14,7 +14,7 @@ profileRouter.get("/view", userAuth, async (req,res)=>{
 
       res.json({success:true, message:"Profile fetched successfully", user});
    }catch(error){
-      res.status(400).json({success:false, message: error.message}); 
+      res.json({success:false, message: error.message}); 
    }
 });
 
@@ -35,7 +35,7 @@ profileRouter.patch("/edit", userAuth, async (req,res)=>{
    
        res.json({success:true ,message : `${loggedInUser.firstName} your profile was updated successfully`, user: loggedInUser});
      }catch(error){
-       res.status(400).json({success:false, message: error.message});
+       res.json({success:false, message: error.message});
      }
 });  
 
@@ -57,7 +57,7 @@ profileRouter.patch("/editpassword", userAuth, async (req,res) =>{
       res.json({success:true ,message: "Your password updated successfully"});
 
    }catch(error){
-      res.status(400).json({success:false, message: error.message});
+      res.json({success:false, message: error.message});
    }
 });
 
